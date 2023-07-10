@@ -9,6 +9,24 @@ import sqlite3
 con = sqlite3.connect('db.db',check_same_thread=False)
 cur = con.cursor()
 
+# 배포된 서버에서 따로 데이터를 만들 테이블을 만들어줘야한다.
+# 백엔드 코드에서 자동으로 테이블을 생성할 수 있도록 SQL문을 작성했다.
+# 작성해주면 백엔드 코드가 실행될때 테이블을 만든다.
+# 단 단 CREATE TABLE items로 만들게 되면 db에 테이블이 이미 존재한다고 뜬다(배포된경우에도)
+# 방지하기 위해 테이블이 없을때만 CREATE될 수 있도록
+# 조건문 테이블이 없을 때만 생성하는 SQL문 => ➕ IF NOT EXISTS items
+cur.execute(f"""
+            CREATE TABLE items (
+                id INTEGER PRIMARY KEY,
+                title TEXT NOT NULL,
+                image BLOB,
+                price INTEGER NOT NULL,
+                description TEXT,
+                place TEXT NOT NULL,
+                insertAt INTEGER NOT NULL
+            );
+            """)
+
 app = FastAPI()
 
 @app.post("/items")
