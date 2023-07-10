@@ -14,7 +14,7 @@ cur = con.cursor()
 # 작성해주면 백엔드 코드가 실행될때 테이블을 만든다.
 # 단 단 CREATE TABLE items로 만들게 되면 db에 테이블이 이미 존재한다고 뜬다(배포된경우에도)
 # 방지하기 위해 테이블이 없을때만 CREATE될 수 있도록
-# 조건문 테이블이 없을 때만 생성하는 SQL문 => ➕ IF NOT EXISTS items
+# 조건문 테이블이 없을 때만 생성하는 SQL문 => IF NOT EXISTS items 추가
 cur.execute(f"""
             CREATE TABLE items (
                 id INTEGER PRIMARY KEY,
@@ -60,5 +60,9 @@ async def get_image(item_id):
     image_bytes = cur.execute(f"""
                               SELECT image from items WHERE id={item_id}
                               """).fetchone()[0]
-    return Response(content=bytes.fromhex(image_bytes))
+    return Response(content=bytes.fromhex(image_bytes), media_type='image/*')
+# media_type='image/*' = ?
+# 작업환경 python 3.11 / data space는 python환경 3.9버전으로 
+# 버전이 맞지 않아 이미지가 제대로 불러와지지 않을 수 있어 추가
+
 app.mount("/",StaticFiles(directory='static',html=True),name='static') 
